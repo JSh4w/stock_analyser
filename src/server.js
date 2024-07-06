@@ -23,6 +23,8 @@ app.get('/', (req, res) => {
 
 //Routes for Express backend 
 const stockRoutes = require('./routes/stockRoutes');
+//any api request that starts with /api/stocks will go to stockRoutes.
+//E.g a client sends a get request to /api/stocks/some-stock-smbol, the route handler in stockRoutes module will be executeds
 app.use('/api/stocks', stockRoutes);
 
 
