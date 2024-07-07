@@ -29,6 +29,10 @@ const stockRoutes = require('./routes/stockRoutes');
 app.use('/api/stocks', stockRoutes);
 
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'An unexpected error occurred' });
+});
 
 
 

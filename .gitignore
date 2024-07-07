@@ -22,3 +22,6 @@ Thumbs.db
 # IDE specific files
 .vscode/
 .idea/
+
+#react specific node_modules 
+client/node_modules/
