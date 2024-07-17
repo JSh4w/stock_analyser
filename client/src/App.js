@@ -2,7 +2,7 @@ import React from 'react';
 //import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 //import StockList from './components/StockList';
 //import StockDetails from './components/StockDetails';
-import StockView from './components/StockView';
+//import StockView from './components/StockView';
 
 function App() {
   return (

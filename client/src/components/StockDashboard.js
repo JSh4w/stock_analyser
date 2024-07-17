@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { fetchStockData, getStockData } from '../services/api';
 import StockSearch from './StockSearch';
-import StockView from './StockView';
+import StockView from './stockView';
 
 function StockDashboard() {
   const [stocks, setStocks] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false
+  );
   const [error, setError] = useState(null);
 
   const fetchStock = async (symbol) => {
