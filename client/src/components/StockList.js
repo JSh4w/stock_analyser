@@ -1,13 +1,28 @@
+// src/components/StockList.js
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getAllStocks } from '../services/api';
+import api from '../services/api';
 
 function StockList() {
   const [stocks, setStocks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    getAllStocks().then(response => setStocks(response.data));
+    api.getAllStocks()
+      .then(response => {
+        setStocks(response.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('Failed to fetch stocks');
+        setLoading(false);
+        console.error('Error fetching stocks:', err);
+      });
   }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div>

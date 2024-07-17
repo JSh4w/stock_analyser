@@ -1,7 +1,8 @@
 //import stock schema from model
 //stock is a data type
 const Stock = require('../models/Stock');
-const { fetchStockData } = require('../stockDataFetcher');
+//const { fetchStockData } = require('../stockDataFetcher');
+const alphaVantageApi = require('../services/alphaVantageAPI');
 
 
 // In general:
@@ -10,7 +11,7 @@ const { fetchStockData } = require('../stockDataFetcher');
  * @param {Object} req - The request object
  * @param {Object} res - The response object
 */
-exports.getAllStocks = async (req, res) => {
+/**exports.getAllStocks = async (req, res) => {
   try {
     // Retrieve all stocks from the database, excluding the 'data' field
     // and only returning the 'symbol', 'name' and 'lastUpdated' fields.
@@ -22,7 +23,7 @@ exports.getAllStocks = async (req, res) => {
     // If there was an error, send a 500 status code with the error message.
     res.status(500).json({ message: error.message });
   }
-};
+};**/
 
 
 exports.getStockBySymbol = async (req, res) => {
@@ -98,26 +99,78 @@ exports.deleteStock = async (req, res) => {
 // Fetch and update stock data
 exports.fetchAndUpdateStockData = async (req, res) => {
   try {
-    const symbol = req.params.symbol;
-    const stockData = await fetchStockData(symbol);
+    const { symbol } = req.params;
+    const data = await alphaVantageApi.fetchStockData(symbol);
     
     // Process stockData and update the database
-    const updatedStock = await Stock.findOneAndUpdate(
-      { symbol: symbol },
-      { 
-        $set: { 
-          data: stockData,
-          lastUpdated: new Date()
-        }
+    const timeSeriesData = data['Time Series (Daily)'];
+    const processedData = Object.entries(timeSeriesData).map(([date, values]) => ({
+      date: new Date(date),
+      open: parseFloat(values['1. open']),
+      high: parseFloat(values['2. high']),
+      low: parseFloat(values['3. low']),
+      close: parseFloat(values['4. close']),
+      volume: parseFloat(values['5. volume']),
+    }));
+
+    // Update the stock data in the database
+    await Stock.findOneAndUpdate(
+      { symbol },
+      {
+        symbol,
+        name: data['Meta Data']['2. Symbol'],
+        data: processedData,
+        lastUpdated: new Date(),
       },
-      { new: true, upsert: true }
+      { upsert: true, new: true }
     );
 
-    res.json(updatedStock);
+    // Fetch the updated stock data from the database
+    res.json({ message: 'Stock data updated successfully' });
+
   } catch (error) {
+    console.error('Error updating stock data'.error);
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.getStockData = async (req, res) => {
+  try {
+    const { symbol } = req.params;
+    const stock = await Stock.findOne({ symbol });
+    if (stock) {
+      res.json({
+        symbol: stock.symbol,
+        name: stock.name,
+        data: stock.data // This should be an array of objects
+      });
+    } else {
+      res.status(404).json({ message: 'Stock not found' });
+    }
+  } catch (error) {
+    console.error('Error fetching stock data:', error);
+    res.status(500).json({ message: 'Error fetching stock data' });
+  }
+};
+
+exports.searchStocks = async (req, res) => {
+  try {
+    const { query } = req.query;
+    const stocks = await Stock.find({
+      $or: [
+        { symbol: new RegExp(query, 'i') },
+        { name: new RegExp(query, 'i') }
+      ]
+    }).select('symbol name');
+    
+    res.json(stocks);
+  } catch (error) {
+    console.error('Error searching stocks:', error);
+    res.status(500).json({ message: 'Error searching stocks' });
+  }
+};
+
+
 
 // Add placeholder for Kalman filter analysis
 exports.analyzeWithKalmanFilter = async (req, res) => {

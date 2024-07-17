@@ -1,6 +1,12 @@
+//Importing Express.js module for backend and assigning as express
 const express = require('express');
+//Importing Mongoose module and assign to mongoose, it is an Object Data Modeling library (ODM) for MongoDB
 const mongoose = require('mongoose');
+//Importing cors module to enable Cross-Origin Resource sharing -> allows web servers to specify which origins 
+//can access their resources
 const cors = require('cors');
+
+//Load environment variables from .env file using dotenv module
 require('dotenv').config();
 
 const app = express();

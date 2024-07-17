@@ -1,8 +1,17 @@
 # stock_analyser
 Comparing different methods of stock analysis
 
-express: Web application framework
-mongoose: MongoDB object modeling tool
-dotenv: Loads environment variables from .env file
-cors: Enables Cross-Origin Resource Sharing
-axios: HTTP client for making API requests
+To run locally
+
+## start backemd:
+new terminal:
+    node src/server.js
+
+## start react app:
+    cd client
+    npm start
+
+### Note 
+    currently implemented.'
+    The fetchData makes a get request from the database 
+    The getData makes an alpaha vantage API request for the data 
