@@ -10,9 +10,10 @@ function StockView() {
     setLoading(true);
     setError(null);
     try {
-      await fetchStockData('AAPL');
+      //const response = await fetchStockData('AAPL');
       const response = await getStockData('AAPL');
-      setStock(response.data);
+      console.log(response.data);
+      setStock(response);
     } catch (err) {
       console.error('Error fetching stock data:', err);
       setError('Failed to fetch stock data');
@@ -24,6 +25,7 @@ function StockView() {
     fetchData();
   }, []);
 
+
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
@@ -33,9 +35,12 @@ function StockView() {
   if (error) return <div>{error}</div>;
   if (!stock) return <div>No stock data available</div>;
 
+
+
   return (
     <div>
-      <h2>{stock.name || 'Apple Inc.'} ({stock.symbol})</h2>
+      <h2>{stock.date}</h2>
+      <h2>{stock.name || 'Apple Inc'} ({stock.symbol})</h2>
       <button onClick={fetchData}>Refresh Data</button>
       {stock.data && stock.data.length > 0 ? (
         <ul>
