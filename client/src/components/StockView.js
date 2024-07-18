@@ -10,14 +10,27 @@ function StockView() {
     setLoading(true);
     setError(null);
     try {
-      //const response = await fetchStockData('AAPL');
-      const response = await getStockData('AAPL');
-      console.log(response.data);
-      setStock(response);
-    } catch (err) {
-      console.error('Error fetching stock data:', err);
-      setError('Failed to fetch stock data');
+      // Attempt to get the stock data from the database first
+      const dbResponse = await getStockData('AAPL');
+      if (dbResponse) {
+        console.log('Data fetched from database:', dbResponse.data);
+        setStock(dbResponse);
+      } else {
+        throw new Error('Data not found in database');
+      }
+    } catch (dbError) {
+      console.warn('Failed to fetch data from database:', dbError);
+      // If the data was not found in the database, fetch it from the API
+      try {
+        const webResponse = await fetchStockData('AAPL');
+        console.log('Data fetched from API:', webResponse.data);
+        setStock(webResponse);
+      } catch (webError) {
+        console.error('Failed to fetch data from API:', webError);
+        setError('Failed to fetch stock data');
+      }
     }
+
     setLoading(false);
   };
 
@@ -44,7 +57,7 @@ function StockView() {
       <button onClick={fetchData}>Refresh Data</button>
       {stock.data && stock.data.length > 0 ? (
         <ul>
-          {stock.data.slice(0, 5).map((item) => (
+          {stock.data.slice(0, 10).map((item) => (
             <li key={item.date}>
               Date: {formatDate(item.date)}, Close: ${item.close.toFixed(2)}
             </li>
