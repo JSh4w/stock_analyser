@@ -41,6 +41,13 @@ app.use((err, req, res, next) => {
 });
 
 
+//For kalmann filter
+const filterRoutes = require('./src/routes/filterRoutes');
+app.use('/api/filter', filterRoutes);
+
+// ... rest of your server setup
+
+
 
 // --- This should be the final command --- // 
 
