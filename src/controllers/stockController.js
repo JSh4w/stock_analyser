@@ -11,37 +11,6 @@ const alphaVantageApi = require('../services/alphaVantageAPI');
  * @param {Object} req - The request object
  * @param {Object} res - The response object
 */
-/**exports.getAllStocks = async (req, res) => {
-  try {
-    // Retrieve all stocks from the database, excluding the 'data' field
-    // and only returning the 'symbol', 'name' and 'lastUpdated' fields.
-    const stocks = await Stock.find({}, 'symbol name lastUpdated');
-
-    // Send the retrieved stocks as a JSON response.
-    res.json(stocks);
-  } catch (error) {
-    // If there was an error, send a 500 status code with the error message.
-    res.status(500).json({ message: error.message });
-  }
-};**/
-
-
-exports.getStockBySymbol = async (req, res) => {
-  try {
-    // Find a stock in the database by its symbol
-    const stock = await Stock.findOne({ symbol: req.params.symbol });
-    // If the stock is found, send it as a JSON response
-    if (stock) {
-      res.json(stock);
-    // If the stock is not found, send a 404 error response
-    } else {
-      res.status(404).json({ message: 'Stock not found' });
-    }
-  // If there was an error, send a 500 error response with the error message
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
 
 exports.createStock = async (req, res) => {
   // Create a new stock object with the provided symbol and name

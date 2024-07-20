@@ -57,7 +57,7 @@ function StockView() {
       <button onClick={fetchData}>Refresh Data</button>
       {stock.data && stock.data.length > 0 ? (
         <ul>
-          {stock.data.slice(0, 10).map((item) => (
+          {stock.data.slice(0, 20).map((item) => (
             <li key={item.date}>
               Date: {formatDate(item.date)}, Close: ${item.close.toFixed(2)}
             </li>
