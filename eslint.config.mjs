@@ -23,8 +23,7 @@ export default [
     rules: {
       ...pluginJs.configs.recommended.rules,
       ...pluginReact.configs.recommended.rules,
-      ...prettierConfig.rules,
-      'prettier/prettier': 'error'
+      ...prettierConfig.rules
     },
     settings: {
       react: {
