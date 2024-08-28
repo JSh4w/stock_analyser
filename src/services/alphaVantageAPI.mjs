@@ -1,10 +1,14 @@
-const axios = require('axios');
-require('dotenv').config();
+// alphaVantageAPI.js
+
+import axios from 'axios';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const API_KEY = process.env.ALPHAVANTAGE_API_KEY;
 const BASE_URL = 'https://www.alphavantage.co/query';
 
-const fetchStockData = async (symbol) => {
+export const fetchStockData = async (symbol) => {
   try {
     console.log(`Fetching data for ${symbol}...`);
     const response = await axios.get(BASE_URL, {
@@ -22,5 +26,3 @@ const fetchStockData = async (symbol) => {
     throw error;
   }
 };
-
-module.exports = { fetchStockData }

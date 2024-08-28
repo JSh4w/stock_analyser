@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchStockData, getStockData } from '../services/api';
+import { refreshStockData, fetchStockData, getStockData } from '../services/api';
 
 function StockView() {
   const [stock, setStock] = useState(null);
@@ -30,14 +30,25 @@ function StockView() {
         setError('Failed to fetch stock data');
       }
     }
+    setLoading(false);
+  };
 
+  const handleRefresh = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await refreshStockData('AAPL');
+      setStock(response);
+    } catch (error) {
+      console.error('Failed to refresh stock data:', error);
+      setError('Failed to refresh stock data');
+    }
     setLoading(false);
   };
 
   useEffect(() => {
     fetchData();
   }, []);
-
 
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -48,13 +59,14 @@ function StockView() {
   if (error) return <div>{error}</div>;
   if (!stock) return <div>No stock data available</div>;
 
-
-
   return (
     <div>
       <h2>{stock.date}</h2>
       <h2>{stock.name || 'Apple Inc'} ({stock.symbol})</h2>
-      <button onClick={fetchData}>Refresh Data</button>
+      <button onClick={handleRefresh} disabled={loading}>
+        {loading ? 'Refreshing...' : 'Refresh Data'}
+      </button>
+      <p>Last updated: {formatDate(stock.lastUpdated)}</p>
       {stock.data && stock.data.length > 0 ? (
         <ul>
           {stock.data.slice(0, 20).map((item) => (

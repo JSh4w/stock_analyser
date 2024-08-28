@@ -1,5 +1,7 @@
-const StockData = require('../models/Stock'); // Adjust path as needed
-const kalmanFilterService = require('../services/kalmanFilterService');
+// StockDataController.js
+
+import StockData from '../models/Stock.mjs'; // Adjust path as needed
+import * as kalmanFilterService from '../services/kalmanFilterService.mjs';
 
 class StockDataController {
   async applyKalmanFilter(req, res) {
@@ -13,4 +15,4 @@ class StockDataController {
   }
 }
 
-module.exports = new StockDataController();
+export default new StockDataController();

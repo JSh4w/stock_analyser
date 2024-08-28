@@ -1,9 +1,9 @@
 // src/routes/filterRoutes.js
-const express = require('express');
-const filterController = require('../controllers/filterController');
+import express from 'express';
+import * as filterController from '../controllers/filterController';
 
 const router = express.Router();
 
 router.post('/:symbol/filter', filterController.applyKalmanFilter);
 
-module.exports = router;
+export default router;

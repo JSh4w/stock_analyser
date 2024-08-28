@@ -1,6 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const stockController = require('../controllers/stockController');
+import { Router } from 'express';
+import { body, param, validationResult } from 'express-validator';
+import * as stockController from '../controllers/stockController.mjs';
+
+const router = Router();
 
 // CRUD operations
 //router.get('/', stockController.getAllStocks);
@@ -8,10 +10,14 @@ const stockController = require('../controllers/stockController');
 //router.post('/', stockController.createStock);
 //router.put('/:symbol', stockController.updateStock);
 //router.delete('/:symbol', stockController.deleteStock);
-router.get('/:symbol', stockController.getStockData); 
+router.get('/:symbol', stockController.getStockData);
 
 // Data fetching and analysis
+// Fetches data from database 
 router.post('/:symbol/fetch', stockController.fetchAndUpdateStockData);
+
+// Refreshing stock data
+router.post('/:symbol/refresh', stockController.getAndUpdateStockData);
 
 // Searching for a specific stock
 //router.get('/search/:query', stockController.searchStocks);
@@ -19,10 +25,7 @@ router.post('/:symbol/fetch', stockController.fetchAndUpdateStockData);
 //router.get('/:symbol/analyze/kalman', stockController.analyzeWithKalmanFilter);
 //router.get('/:symbol/analyze/gpt', stockController.analyzeWithGPT);
 
- 
 // Add validation middleware
-const { body, param, validationResult } = require('express-validator');
-
 router.post('/', [
   body('symbol').isString().isLength({ min: 1, max: 10 }),
   body('name').isString().isLength({ min: 1, max: 100 }),
@@ -34,4 +37,4 @@ router.post('/', [
   next();
 }, stockController.createStock);
 
-module.exports = router;
+export default router;

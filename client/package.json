@@ -25,6 +25,7 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
+    "sourceType": "module",
     "extends": [
       "react-app",
       "react-app/jest"

@@ -1,7 +1,8 @@
-//Axios is a library used to fetch data from an API
-const axios = require('axios');
+// stockDataFetcher.js
 
-//Reqeuires Alpha Vantage account setup!!!!
+import axios from 'axios';
+
+// Requires Alpha Vantage account setup!!!!
 async function fetchStockData(symbol) {
   const API_KEY = process.env.ALPHAVANTAGE_API_KEY;
   const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${API_KEY}`;
@@ -16,4 +17,4 @@ async function fetchStockData(symbol) {
   }
 }
 
-module.exports = { fetchStockData };
+export { fetchStockData };

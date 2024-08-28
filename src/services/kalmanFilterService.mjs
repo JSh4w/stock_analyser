@@ -1,4 +1,6 @@
-const KalmanFilter = require('kalman-filter');
+// KalmanFilterService.js
+
+import KalmanFilter from 'kalman-filter';
 
 class KalmanFilterService {
   constructor() {
@@ -31,4 +33,4 @@ class KalmanFilterService {
   }
 }
 
-module.exports = new KalmanFilterService();
+export default new KalmanFilterService();
