@@ -36,3 +36,15 @@ export const refreshStockData = async (symbol) => {
     throw error;
   }
 }
+
+export const analyzeWithKalmanFilter = async (symbol, predictSteps = 1) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/${symbol}/analyze/kalman`, {
+      params: { predict: predictSteps }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error in analyzeWithKalmanFilter:', error.response?.data || error.message);
+    throw error;
+  }
+};

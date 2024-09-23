@@ -2,6 +2,10 @@
 
 import Stock from '../models/Stock.mjs';
 import * as alphaVantageApi from '../services/alphaVantageAPI.mjs';
+import processStockData from '../services/kalmanFilterService.mjs';
+import { predictNextDayStock } from '../services/arima.mjs';
+import { preprocessStockData, postprocessPrediction } from '../services/dataProcessing.mjs';
+
 
 /**
  * Create a new stock
@@ -189,7 +193,7 @@ export const getAndUpdateStockData = async (req, res) => {
     res.json({
       symbol: stock.symbol,
       name: stock.name,
-      data: stock.data.slice(0, 20),
+      data: stock.data.slice(0, 30),
       lastUpdated: stock.lastUpdated
     });
 
@@ -201,7 +205,66 @@ export const getAndUpdateStockData = async (req, res) => {
 
 // Placeholder functions
 export const analyzeWithKalmanFilter = async (req, res) => {
-  res.status(501).json({ message: 'Kalman filter analysis not implemented yet' });
+  try {
+    const { symbol } = req.params;
+    const predictSteps = parseInt(req.query.predict) || 5; 
+
+    // Fetch the stock data
+    const stock = await Stock.findOne({ symbol });
+    
+    if (!stock) {
+      return res.status(404).json({ message: 'Stock not found' });
+    }
+    //maybe slice stock data to remove most recent, that way can test prediction 
+    const filteredData = processStockData(stock.data, predictSteps);
+
+    const historicalData  = filteredData.filter(item => item.original!= null);
+    const predicitions = filteredData.filter(item => item.original == null);
+
+    res.json({
+      symbol: stock.symbol,
+      name: stock.name,
+      historicalData: historicalData,
+      predicitions: predicitions
+    });
+
+  } catch (error) {
+    console.error('Error updating stock data:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+export const analyzeWithARIMA = async (req, res) => {
+  try {
+    const { symbol } = req.params;
+    const { days = 30 } = req.query;
+
+    const stock = await Stock.findOne({ symbol })
+      .sort({ date: -1 })
+      .limit(parseInt(days))
+      .select('close')
+      .lean();
+
+    if (!stock || stock.data.length < 2) {
+      return res.status(404).json({ message: 'Insufficient data for prediction' });
+    }
+
+    const historicalPrices = stock.data.map(item => item.close).reverse();
+    const logReturns = preprocessStockData(historicalPrices).logReturns;
+
+    const { prediction, error } = await predictNextDayStock(logReturns);
+
+    res.json({
+      symbol,
+      prediction,
+      error,
+      message: `Predicted closing price for next trading day: $${prediction.toFixed(2)}`
+    });
+  } catch (error) {
+    console.error('Error in stock prediction:', error);
+    res.status(500).json({ message: 'Error making prediction', error: error.message });
+  }
 };
 
 export const analyzeWithGPT = async (req, res) => {

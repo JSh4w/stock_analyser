@@ -22,8 +22,8 @@ router.post('/:symbol/refresh', stockController.getAndUpdateStockData);
 // Searching for a specific stock
 //router.get('/search/:query', stockController.searchStocks);
 
-//router.get('/:symbol/analyze/kalman', stockController.analyzeWithKalmanFilter);
-//router.get('/:symbol/analyze/gpt', stockController.analyzeWithGPT);
+//using kalman filtering
+router.get('/:symbol/analyze/kalman', stockController.analyzeWithKalmanFilter);
 
 // Add validation middleware
 router.post('/', [

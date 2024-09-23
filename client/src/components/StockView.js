@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { refreshStockData, fetchStockData, getStockData } from '../services/api';
+import { refreshStockData, fetchStockData, getStockData, analyzeWithKalmanFilter } from '../services/api';
 
 function StockView() {
   const [stock, setStock] = useState(null);
+  const [kalmanData, setKalmanData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -15,6 +16,8 @@ function StockView() {
       if (dbResponse) {
         console.log('Data fetched from database:', dbResponse.data);
         setStock(dbResponse);
+        const kalmanAnalysis = await analyzeWithKalmanFilter('AAPL', 1);
+        setKalmanData(kalmanAnalysis);
       } else {
         throw new Error('Data not found in database');
       }
@@ -25,6 +28,8 @@ function StockView() {
         const webResponse = await fetchStockData('AAPL');
         console.log('Data fetched from API:', webResponse.data);
         setStock(webResponse);
+        const kalmanAnalysis = await analyzeWithKalmanFilter('AAPL', 1);
+        setKalmanData(kalmanAnalysis);
       } catch (webError) {
         console.error('Failed to fetch data from API:', webError);
         setError('Failed to fetch stock data');
@@ -39,6 +44,8 @@ function StockView() {
     try {
       const response = await refreshStockData('AAPL');
       setStock(response);
+      const kalmanAnalysis = await analyzeWithKalmanFilter('AAPL', 1);
+      setKalmanData(kalmanAnalysis);
     } catch (error) {
       console.error('Failed to refresh stock data:', error);
       setError('Failed to refresh stock data');
@@ -58,6 +65,8 @@ function StockView() {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!stock) return <div>No stock data available</div>;
+  if (!kalmanData) return <div>No kalman filter data available</div>;
+
 
   return (
     <div>
@@ -65,7 +74,7 @@ function StockView() {
       <h2>{stock.name || 'Apple Inc'} ({stock.symbol})</h2>
       <button onClick={handleRefresh} disabled={loading}>
         {loading ? 'Refreshing...' : 'Refresh Data'}
-      </button>
+      </button> 
       <p>Last updated: {formatDate(stock.lastUpdated)}</p>
       {stock.data && stock.data.length > 0 ? (
         <ul>
@@ -77,6 +86,31 @@ function StockView() {
         </ul>
       ) : (
         <p>No data available for this stock.</p>
+      )}
+
+      <h3>Kalman Filter Analysis</h3>
+      {kalmanData.historicalData && kalmanData.historicalData.length > 0 ? (
+        <div>
+          <h4>Filtered Historical Data</h4>
+          <ul>
+            {kalmanData.historicalData.slice(0, 20).map((item) => (
+              <li key={item.date}>
+                Date: {formatDate(item.date)}, Original: ${item.original.toFixed(2)}, Filtered: ${item.filtered.toFixed(2)}
+              </li>
+            ))}
+          </ul>
+          
+          <h4>Predictions</h4>
+          <ul>
+            {kalmanData.predictions.map((item) => (
+              <li key={item.date}>
+                Date: {formatDate(item.date)}, Predicted: ${item.filtered.toFixed(2)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <p>No Kalman filter analysis available for this stock.</p>
       )}
     </div>
   );
